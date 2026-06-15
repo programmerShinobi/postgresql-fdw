@@ -10,9 +10,9 @@
 - [ ] **Docker Compose v2** (the `docker compose` subcommand) — check: `docker compose version`
 - [ ] **GNU Make** (optional but recommended) — check: `make --version`
 - [ ] **Git** — to clone & version this repo
-- [ ] Your user can run Docker **without `sudo`**. On this laptop `faqih` is
-      **not** in the `docker` group yet, so docker commands currently need
-      `sudo`. Fix it once (recommended) so `make` works cleanly:
+- [ ] Your user can run Docker **without `sudo`**. If your user is **not** in
+      the `docker` group yet, docker commands will need `sudo`. Fix it once
+      (recommended) so `make` works cleanly:
       ```bash
       sudo usermod -aG docker $USER
       # then log out and back in (or: newgrp docker) for it to take effect

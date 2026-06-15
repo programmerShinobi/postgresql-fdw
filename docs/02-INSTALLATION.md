@@ -4,8 +4,8 @@
 
 ## 2.0 Docker permissions (one-time, do this first)
 
-On this laptop the `faqih` user is **not** in the `docker` group, so `docker`
-and `make` will fail with `permission denied ... /var/run/docker.sock`. Fix once:
+If your user is **not** in the `docker` group, `docker` and `make` will fail
+with `permission denied ... /var/run/docker.sock`. Fix once:
 
 ```bash
 sudo usermod -aG docker $USER

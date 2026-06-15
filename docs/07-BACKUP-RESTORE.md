@@ -57,7 +57,7 @@ docker compose exec -T postgres pg_dump -U local_dev -d local_db \
 
 ```cron
 # crontab -e  → daily at 02:30
-30 2 * * * cd /home/faqih/Documents/projects/me/postgresql-fdw && make backup >> backups/cron.log 2>&1
+30 2 * * * cd /path/to/postgresql-fdw && make backup >> backups/cron.log 2>&1
 ```
 
 **Option B — in-database with pg_cron** (logical dump still needs the host, but
