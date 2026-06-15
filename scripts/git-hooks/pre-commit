@@ -31,9 +31,10 @@ fi
 if grep -qE '^\+.*postgres(ql)?://[^:@/]+:[^@/<][^@/]*@' <<<"$staged"; then
   note "a connection string with an embedded password is being added"
 fi
-# obvious password assignments with a real-looking value
-if grep -qE '^\+.*(PASSWORD|PASSWD|SECRET|TOKEN)[[:space:]]*[:=][[:space:]]*[A-Za-z0-9/+_-]{12,}' <<<"$staged" \
-   | grep -vqiE 'CHANGE_ME|example|<.*>|your-|pick-a'; then
+# obvious password assignments with a real-looking value (skip placeholders
+# like CHANGE_ME / <...> / ${ENV_VAR} interpolations / examples)
+if grep -E '^\+.*(PASSWORD|PASSWD|SECRET|TOKEN|APIKEY|API_KEY)[[:space:]]*[:=][[:space:]]*["'"'"']?[A-Za-z0-9/+_-]{12,}' <<<"$staged" \
+   | grep -viqE 'CHANGE_ME|example|<[^>]*>|your-|pick-a|\$\{|REDACTED'; then
   note "a hardcoded password/secret value is being added"
 fi
 

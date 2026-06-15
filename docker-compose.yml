@@ -81,6 +81,118 @@ services:
     networks:
       - local_net
 
+  # ===========================================================================
+  # OPTIONAL services — each is gated behind a compose `profile`, so a plain
+  # `make up` starts ONLY postgres and these consume ZERO CPU/RAM unless asked:
+  #     make up-pooler | up-backup | up-ui | up-metrics | up-all
+  # Anyone who needs a feature enables it; nobody pays for what they don't use.
+  # ===========================================================================
+
+  # --- Connection pooler (profile: pooler) -----------------------------------
+  # Lets hundreds of app connections share Postgres' small max_connections.
+  pgbouncer:
+    image: edoburu/pgbouncer:v1.25.2-p0
+    container_name: ${COMPOSE_PROJECT_NAME:-local}-pgbouncer
+    profiles: ["pooler"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: ${POSTGRES_USER:-local_dev}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      DB_NAME: ${POSTGRES_DB:-local_db}
+      AUTH_TYPE: scram-sha-256
+      POOL_MODE: ${PGBOUNCER_POOL_MODE:-transaction}
+      MAX_CLIENT_CONN: ${PGBOUNCER_MAX_CLIENT_CONN:-200}
+      DEFAULT_POOL_SIZE: ${PGBOUNCER_DEFAULT_POOL_SIZE:-20}
+    ports:
+      - "${PGBOUNCER_HOST_PORT:-6432}:6432"
+    mem_limit: 96m
+    cpus: 0.5
+    networks: [local_net]
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "3"}
+
+  # --- Scheduled backups (profile: backup) -----------------------------------
+  # Periodic pg_dump (PG17 client) into ./backups with rotation/retention.
+  backup:
+    image: prodrigestivill/postgres-backup-local:17-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-local}-backup
+    profiles: ["backup"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-local_db}
+      POSTGRES_USER: ${POSTGRES_USER:-local_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      SCHEDULE: ${BACKUP_SCHEDULE:-@daily}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-7}
+      BACKUP_KEEP_WEEKS: ${BACKUP_KEEP_WEEKS:-4}
+      BACKUP_KEEP_MONTHS: ${BACKUP_KEEP_MONTHS:-3}
+      TZ: ${TZ:-Asia/Jakarta}
+    volumes:
+      - ./backups:/backups
+    mem_limit: 128m
+    cpus: 0.5
+    networks: [local_net]
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "3"}
+
+  # --- Web admin UI (profile: ui) --------------------------------------------
+  # Adminer: single-file, ultra-light DB UI (~native, tiny). http://localhost:8080
+  adminer:
+    image: adminer:5.4.2
+    container_name: ${COMPOSE_PROJECT_NAME:-local}-adminer
+    profiles: ["ui"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: dracula
+    ports:
+      - "${ADMINER_HOST_PORT:-8080}:8080"
+    mem_limit: 128m
+    cpus: 0.5
+    networks: [local_net]
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "3"}
+
+  # --- Prometheus metrics exporter (profile: metrics) ------------------------
+  # Exposes Postgres metrics at http://localhost:9187/metrics for Prometheus.
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.19.1
+    container_name: ${COMPOSE_PROJECT_NAME:-local}-exporter
+    profiles: ["metrics"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Credentials kept out of the URI on purpose (see pre-commit secret guard).
+      DATA_SOURCE_URI: "postgres:5432/${POSTGRES_DB:-local_db}?sslmode=disable"
+      DATA_SOURCE_USER: ${POSTGRES_USER:-local_dev}
+      DATA_SOURCE_PASS: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "${EXPORTER_HOST_PORT:-9187}:9187"
+    mem_limit: 96m
+    cpus: 0.5
+    networks: [local_net]
+    logging:
+      driver: json-file
+      options: {max-size: "5m", max-file: "3"}
+
 volumes:
   pgdata:
     name: ${COMPOSE_PROJECT_NAME:-local}_pgdata

@@ -73,6 +73,7 @@ Each document is a self-contained checklist. Tick the boxes as you go.
 | 9 | [Troubleshooting](docs/09-TROUBLESHOOTING.md) | Common errors and fixes |
 | 10 | [Security](docs/10-SECURITY.md) | Hardening checklist for dev and beyond |
 | 11 | [Import from Source](docs/11-IMPORT-FROM-SOURCE.md) | Safely migrate data from an existing PostgreSQL |
+| 12 | [Optional Features](docs/12-OPTIONAL-FEATURES.md) | Opt-in pooler / backups / UI / metrics — zero cost when off |
 
 ---
 
@@ -113,15 +114,30 @@ A bird's-eye view. Detailed steps live in the linked docs.
 
 ---
 
+## 🧩 Optional features (off by default, zero cost when off)
+
+A plain `make up` starts **only** PostgreSQL. Everything else is opt-in via
+Docker Compose profiles, each hard-capped so it never slows your laptop:
+
+```bash
+make up-pooler    # + PgBouncer connection pooler   (port 6432)
+make up-backup    # + scheduled rotated backups
+make up-ui        # + Adminer web UI                (http://localhost:8080)
+make up-metrics   # + postgres-exporter             (http://localhost:9187)
+make up-all       # + everything above
+```
+
+Full matrix & tuning: [doc 12 — Optional Features](docs/12-OPTIONAL-FEATURES.md).
+
 ## 🧰 Everyday commands
 
 ```bash
-make up           # start
-make down         # stop (data kept)
+make up           # start ONLY core Postgres
+make down         # stop everything (data kept)
 make psql         # open a psql shell
 make extensions   # list installed extensions
 make stats        # live CPU/RAM of the container
-make backup       # dump to ./backups
+make backup       # one-off dump to ./backups (manual)
 make logs         # follow logs
 make destroy      # stop AND delete data (careful!)
 make help         # everything

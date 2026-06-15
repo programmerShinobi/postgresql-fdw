@@ -44,8 +44,29 @@ build: ## Build the image (compiles mysql_fdw; first run is slow)
 	$(DC) build
 
 .PHONY: up
-up: ## Start Postgres in the background
+up: ## Start ONLY core Postgres (optional services stay off)
 	$(DC) up -d
+
+# ---- Optional features (compose profiles; off by default) ------------------
+.PHONY: up-pooler
+up-pooler: ## Start core + PgBouncer connection pooler (port 6432)
+	$(DC) --profile pooler up -d
+
+.PHONY: up-backup
+up-backup: ## Start core + scheduled backup service
+	$(DC) --profile backup up -d
+
+.PHONY: up-ui
+up-ui: ## Start core + Adminer web UI (http://localhost:8080)
+	$(DC) --profile ui up -d
+
+.PHONY: up-metrics
+up-metrics: ## Start core + postgres-exporter (http://localhost:9187/metrics)
+	$(DC) --profile metrics up -d
+
+.PHONY: up-all
+up-all: ## Start core + ALL optional services
+	$(DC) --profile pooler --profile backup --profile ui --profile metrics up -d
 
 .PHONY: down
 down: ## Stop containers (keeps data)

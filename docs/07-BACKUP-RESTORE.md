@@ -3,6 +3,11 @@
 > Data in the `local_pgdata` volume survives `make down`, but **not** `make
 > destroy`. Take real backups.
 
+> **This feature is optional and on-demand.** Nothing here runs unless you
+> invoke it. `make backup`/`make restore` are manual; an *automated* scheduled
+> backup is an opt-in service (`make up-backup`, off by default) — see
+> [doc 12 — Optional Features](12-OPTIONAL-FEATURES.md).
+
 ## 7.1 One-off backup
 
 ```bash
