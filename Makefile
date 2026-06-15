@@ -23,9 +23,21 @@ help: ## Show this help
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: init
-init: ## First-time setup: copy .env.example -> .env if missing
+init: hooks ## First-time setup: copy .env.example -> .env if missing + install hooks
 	@test -f .env || (cp .env.example .env && echo "Created .env — EDIT THE PASSWORD before 'make up'")
 	@test -f .env && echo ".env present."
+
+.PHONY: hooks
+hooks: ## Install the git pre-commit secret guard
+	@if [ -d .git ]; then \
+		cp scripts/git-hooks/pre-commit .git/hooks/pre-commit && \
+		chmod +x .git/hooks/pre-commit && \
+		echo "Installed .git/hooks/pre-commit (secret guard)."; \
+	else echo "Not a git repo yet — run 'git init' first."; fi
+
+.PHONY: scan-secrets
+scan-secrets: ## Dry-run the secret guard against everything currently staged
+	@git add -A -n >/dev/null 2>&1; bash scripts/git-hooks/pre-commit && echo "No secrets detected in staged changes."
 
 .PHONY: build
 build: ## Build the image (compiles mysql_fdw; first run is slow)

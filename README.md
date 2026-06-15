@@ -72,6 +72,7 @@ Each document is a self-contained checklist. Tick the boxes as you go.
 | 8 | [Deployment](docs/08-DEPLOYMENT.md) | Promoting the same setup toward staging/prod |
 | 9 | [Troubleshooting](docs/09-TROUBLESHOOTING.md) | Common errors and fixes |
 | 10 | [Security](docs/10-SECURITY.md) | Hardening checklist for dev and beyond |
+| 11 | [Import from Source](docs/11-IMPORT-FROM-SOURCE.md) | Safely migrate data from an existing PostgreSQL |
 
 ---
 

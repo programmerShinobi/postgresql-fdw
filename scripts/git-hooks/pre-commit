@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# =============================================================================
+# pre-commit secret guard — blocks commits that would leak credentials or
+# internal infrastructure details. Install with:  make hooks
+#
+# Lightweight (no external deps). It scans STAGED content only.
+# =============================================================================
+set -euo pipefail
+
+fail=0
+note() { printf "\033[31m[pre-commit BLOCKED]\033[0m %s\n" "$1"; fail=1; }
+
+# 1) Never allow these files to be committed at all.
+while IFS= read -r f; do
+  case "$f" in
+    .env|.env.source|*.env|*.pem|*.key|*.secret)
+      # allow the *.example templates
+      case "$f" in *.example) : ;; *) note "secret file staged: $f" ;; esac
+      ;;
+  esac
+done < <(git diff --cached --name-only)
+
+# 2) Scan staged diff content for secret-ish patterns.
+staged="$(git diff --cached -U0 --no-color || true)"
+
+# private IPv4 ranges (10.x, 172.16-31.x, 192.168.x) — internal infra leak
+if grep -qE '^\+.*\b(10|192\.168|172\.(1[6-9]|2[0-9]|3[01]))\.[0-9]{1,3}\.[0-9]{1,3}\b' <<<"$staged"; then
+  note "a private/internal IP address is being added"
+fi
+# postgres URIs with an inline REAL password (a leading '<' means a placeholder)
+if grep -qE '^\+.*postgres(ql)?://[^:@/]+:[^@/<][^@/]*@' <<<"$staged"; then
+  note "a connection string with an embedded password is being added"
+fi
+# obvious password assignments with a real-looking value
+if grep -qE '^\+.*(PASSWORD|PASSWD|SECRET|TOKEN)[[:space:]]*[:=][[:space:]]*[A-Za-z0-9/+_-]{12,}' <<<"$staged" \
+   | grep -vqiE 'CHANGE_ME|example|<.*>|your-|pick-a'; then
+  note "a hardcoded password/secret value is being added"
+fi
+
+if [ "$fail" -ne 0 ]; then
+  echo
+  echo "Commit aborted. Move secrets into .env / .env.source (gitignored),"
+  echo "or use placeholders. Override only if you are SURE:  git commit --no-verify"
+  exit 1
+fi
+exit 0

@@ -1,14 +1,23 @@
-# Secrets — never commit real credentials
+# =============================================================================
+# Secrets — NEVER commit real credentials or connection details.
+# =============================================================================
 .env
-*.env
+.env.*
 !.env.example
+!.env.source.example
+*.env
+secrets/
+*.secret
+*.pem
+*.key
 
-# Database backups / dumps
+# Database backups / dumps (may contain real data and embedded FDW credentials)
 backups/*
 !backups/.gitkeep
 *.sql.gz
 *.dump
 *.tar
+*.bak
 
 # OS / editor cruft
 .DS_Store

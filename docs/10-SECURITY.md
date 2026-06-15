@@ -3,16 +3,46 @@
 > Even for local dev, a few habits prevent leaks and make the eventual jump to
 > staging/production painless.
 
-## 10.1 Secrets
+## 10.1 Secret management (the standard this repo follows)
 
-- [ ] **`.env` is git-ignored** (it is — see `.gitignore`). Never commit it.
+**Golden rule: no credential — and no internal hostname/IP — ever enters git.**
+
+How it's enforced here:
+
+- [ ] **Real secrets live only in gitignored files**: `.env` (target DB) and
+      `.env.source` (the DB you import FROM). Only the `*.example` templates,
+      which contain placeholders, are committed.
+- [ ] **`.gitignore` is broad**: `.env`, `.env.*`, `*.env`, `*.key`, `*.pem`,
+      `*.secret`, `secrets/`, and all backup dumps (dumps embed FDW credentials).
+- [ ] **A pre-commit guard blocks leaks** before they happen. Install it once:
+      ```bash
+      make hooks          # copies scripts/git-hooks/pre-commit into .git/hooks
+      ```
+      It rejects a commit that adds a private IP (10.x / 172.16–31.x / 192.168.x),
+      a `postgres://user:pass@…` URI, a secret file, or a hardcoded password.
+      Dry-run anytime with `make scan-secrets`. Override (rarely) with
+      `git commit --no-verify`.
+- [ ] **Migration scripts read `.env.source`** — never pass passwords on the
+      command line (they'd land in your shell history).
 - [ ] Use a **strong, unique** `POSTGRES_PASSWORD` (the `openssl rand` snippet
       in [doc 2](02-INSTALLATION.md)).
-- [ ] Don't paste real passwords into issues, screenshots, or commit messages.
-- [ ] If a password leaks, rotate it:
-      ```sql
-      ALTER USER local_dev WITH PASSWORD 'new-strong-password';
-      ```
+- [ ] Don't paste real passwords/hosts into issues, screenshots, or commit messages.
+
+### If a credential was ever exposed — rotate it
+
+Because this DB integrates several others via FDW, a leak of the Postgres
+superuser can cascade. Rotate promptly:
+
+```sql
+-- the Postgres role
+ALTER USER local_dev WITH PASSWORD 'new-strong-password';
+```
+Also rotate, at the source/remote side, **any credential that was visible**:
+the source `ahi_dev` password, and the remote MySQL/SQL Server logins stored in
+the FDW user mappings. Update the mappings afterwards:
+```sql
+ALTER USER MAPPING FOR <role> SERVER <srv> OPTIONS (SET password 'new-remote-pw');
+```
 
 ## 10.2 Authentication
 

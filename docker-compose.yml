@@ -45,6 +45,7 @@ services:
       - ./scripts/init:/docker-entrypoint-initdb.d:ro
       # Place to drop SQL examples / backups for manual use.
       - ./scripts/fdw-examples:/opt/fdw-examples:ro
+      - ./scripts/migration:/opt/migration:ro
       - ./backups:/backups
 
     healthcheck:
