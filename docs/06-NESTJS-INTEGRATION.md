@@ -3,6 +3,11 @@
 > Wiring this database into a NestJS backend running on the **same host**,
 > next to Elasticsearch and Redis.
 
+> **Scope:** this is an *integration reference only*. This repository provides
+> the **database** — it contains no NestJS application code. The snippets below
+> belong in your **separate** NestJS project; copy what you need. Nothing here
+> needs to be added to this repo.
+
 ## 6.1 Connection details
 
 ```
