@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐘 PostgreSQL 17 — Dockerized Dev Setup with FDW & Extensions
+# 🐘 PostgreSQL FDW Dev
 
 **A production-shaped, laptop-friendly PostgreSQL development environment.**
 Foreign Data Wrappers + vector search + scheduling + partitioning + auditing —
