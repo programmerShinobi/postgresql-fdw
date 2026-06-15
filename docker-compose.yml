@@ -1,0 +1,90 @@
+# =============================================================================
+# PostgreSQL 17 — Development stack
+# Tuned to be a polite neighbour on a 16 GB laptop running NestJS,
+# Elasticsearch, Redis and other heavy services at the same time.
+#
+# Hard resource caps below prevent Postgres from ever starving the host.
+# =============================================================================
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PG_MAJOR: "17"
+    image: postgresql-fdw-dev:17
+    container_name: ${COMPOSE_PROJECT_NAME:-ahi}-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ahi_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-ahi_db}
+      # Use scram-sha-256 (stronger than md5) for host connections.
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: "--data-checksums --auth-host=scram-sha-256"
+      # Set timezone so logs/timestamps match your locale.
+      TZ: ${TZ:-Asia/Jakarta}
+      PGTZ: ${TZ:-Asia/Jakarta}
+
+    # Mirror your reference connection string: host port 15409 -> container 5432.
+    ports:
+      - "${POSTGRES_HOST_PORT:-15409}:5432"
+
+    command:
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql/postgresql.conf"
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Live-editable tuned config (no rebuild needed to change it).
+      - ./config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      # Runs ONLY on first init (empty data dir): creates all extensions etc.
+      - ./scripts/init:/docker-entrypoint-initdb.d:ro
+      # Place to drop SQL examples / backups for manual use.
+      - ./scripts/fdw-examples:/opt/fdw-examples:ro
+      - ./backups:/backups
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ahi_dev} -d ${POSTGRES_DB:-ahi_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+    # ---- Hard limits: Postgres can never exceed these on your laptop ----
+    deploy:
+      resources:
+        limits:
+          # ~1.5 GB ceiling keeps room for ES + Redis + NestJS.
+          memory: ${PG_MEM_LIMIT:-1536M}
+          cpus: "${PG_CPU_LIMIT:-2.0}"
+        reservations:
+          memory: 256M
+    # For `docker compose` (non-swarm) the limits below are also honoured.
+    mem_limit: ${PG_MEM_LIMIT:-1536M}
+    cpus: ${PG_CPU_LIMIT:-2.0}
+    memswap_limit: ${PG_MEMSWAP_LIMIT:-2048M}
+    shm_size: ${PG_SHM_SIZE:-256m}
+
+    stop_grace_period: 1m
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - ahi_net
+
+volumes:
+  pgdata:
+    name: ${COMPOSE_PROJECT_NAME:-ahi}_pgdata
+
+networks:
+  ahi_net:
+    name: ${COMPOSE_PROJECT_NAME:-ahi}_net
+    driver: bridge

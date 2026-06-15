@@ -1,0 +1,62 @@
+name: CI
+
+# Builds the image and boots the database to prove every extension installs
+# and gets created successfully. Runs on push/PR.
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create .env for CI
+        run: |
+          cp .env.example .env
+          # Deterministic password for the throwaway CI database.
+          sed -i 's/^POSTGRES_PASSWORD=.*/POSTGRES_PASSWORD=ci_test_password_123/' .env
+
+      - name: Build image
+        run: docker compose build
+
+      - name: Start database
+        run: docker compose up -d
+
+      - name: Wait for healthy
+        run: |
+          for i in $(seq 1 30); do
+            if docker compose exec -T postgres pg_isready -U ahi_dev -d ahi_db; then
+              echo "ready"; exit 0
+            fi
+            echo "waiting... ($i)"; sleep 5
+          done
+          echo "database did not become ready"; docker compose logs; exit 1
+
+      - name: Assert extensions are installed
+        run: |
+          docker compose exec -T postgres psql -U ahi_dev -d ahi_db -tAc \
+            "SELECT extname FROM pg_extension ORDER BY extname;" | tee /tmp/ext.txt
+          for ext in postgres_fdw mysql_fdw tds_fdw file_fdw vector pg_cron \
+                     pg_partman pgaudit pg_repack hypopg pg_hint_plan orafce \
+                     pg_stat_statements; do
+            grep -qx "$ext" /tmp/ext.txt || { echo "MISSING extension: $ext"; exit 1; }
+          done
+          echo "All required extensions present."
+
+      - name: Dump logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Teardown
+        if: always()
+        run: docker compose down -v

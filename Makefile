@@ -1,0 +1,90 @@
+# =============================================================================
+# Convenience commands. Run `make help` to see everything.
+# =============================================================================
+SHELL := /bin/bash
+
+# Load .env so targets can reference $(POSTGRES_USER) etc.
+ifneq (,$(wildcard ./.env))
+include .env
+export
+endif
+
+DC          := docker compose
+SERVICE     := postgres
+DB_USER     ?= ahi_dev
+DB_NAME     ?= ahi_db
+TS          := $(shell date +%Y%m%d_%H%M%S)
+
+.DEFAULT_GOAL := help
+
+.PHONY: help
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
+		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: init
+init: ## First-time setup: copy .env.example -> .env if missing
+	@test -f .env || (cp .env.example .env && echo "Created .env — EDIT THE PASSWORD before 'make up'")
+	@test -f .env && echo ".env present."
+
+.PHONY: build
+build: ## Build the image (compiles mysql_fdw; first run is slow)
+	$(DC) build
+
+.PHONY: up
+up: ## Start Postgres in the background
+	$(DC) up -d
+
+.PHONY: down
+down: ## Stop containers (keeps data)
+	$(DC) down
+
+.PHONY: restart
+restart: ## Restart the Postgres service
+	$(DC) restart $(SERVICE)
+
+.PHONY: destroy
+destroy: ## Stop and DELETE the data volume (irreversible!)
+	$(DC) down -v
+
+.PHONY: logs
+logs: ## Follow Postgres logs
+	$(DC) logs -f $(SERVICE)
+
+.PHONY: ps
+ps: ## Show container status
+	$(DC) ps
+
+.PHONY: stats
+stats: ## Live CPU/RAM usage of the container
+	docker stats $$($(DC) ps -q $(SERVICE))
+
+.PHONY: psql
+psql: ## Open a psql shell inside the container
+	$(DC) exec $(SERVICE) psql -U $(DB_USER) -d $(DB_NAME)
+
+.PHONY: extensions
+extensions: ## List installed extensions in the database
+	$(DC) exec $(SERVICE) psql -U $(DB_USER) -d $(DB_NAME) \
+		-c "SELECT extname, extversion FROM pg_extension ORDER BY extname;"
+
+.PHONY: available
+available: ## List ALL extensions the image can offer (default_version)
+	$(DC) exec $(SERVICE) psql -U $(DB_USER) -d $(DB_NAME) \
+		-c "SELECT name, default_version, comment FROM pg_available_extensions ORDER BY name;"
+
+.PHONY: health
+health: ## Check readiness
+	$(DC) exec $(SERVICE) pg_isready -U $(DB_USER) -d $(DB_NAME)
+
+.PHONY: backup
+backup: ## Dump the database to ./backups (gzip)
+	$(DC) exec -T $(SERVICE) pg_dump -U $(DB_USER) -d $(DB_NAME) -Fc \
+		| gzip > backups/$(DB_NAME)_$(TS).dump.gz
+	@echo "Wrote backups/$(DB_NAME)_$(TS).dump.gz"
+
+.PHONY: restore
+restore: ## Restore from FILE=backups/xxx.dump.gz
+	@test -n "$(FILE)" || (echo "Usage: make restore FILE=backups/xxx.dump.gz"; exit 1)
+	gunzip -c $(FILE) | $(DC) exec -T $(SERVICE) pg_restore -U $(DB_USER) -d $(DB_NAME) --clean --if-exists
+	@echo "Restored from $(FILE)"

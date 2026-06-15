@@ -1,0 +1,133 @@
+<div align="center">
+
+# 🐘 PostgreSQL 17 — Dockerized Dev Setup with FDW & Extensions
+
+**A production-shaped, laptop-friendly PostgreSQL development environment.**
+Foreign Data Wrappers + vector search + scheduling + partitioning + auditing —
+all pre-installed, tuned to coexist peacefully with Elasticsearch, Redis and NestJS.
+
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+</div>
+
+---
+
+## ✨ What you get
+
+- **PostgreSQL 17** on the official Debian image, fully reproducible.
+- **15+ extensions ready to use** the moment the container is up — including
+  `postgres_fdw`, `mysql_fdw`, `tds_fdw`, `file_fdw`, `pgvector`, `pg_cron`,
+  `pg_partman`, `pg_stat_statements`, `pgaudit`, `pg_repack`, `hypopg`,
+  `pg_hint_plan`, `orafce`, and the usual `uuid-ossp`/`pgcrypto`/`pg_trgm` toolbox.
+- **Laptop-safe by design** — hard Docker memory & CPU caps so Postgres can
+  *never* starve your other heavy services.
+- **One-command workflow** via `make` (up, down, psql, backup, restore, stats…).
+- **Documented end-to-end** — a checklist you can tick off from requirements
+  all the way to deployment.
+
+---
+
+## 🚀 Quick start (TL;DR)
+
+```bash
+# 1. Configure (edit the password!)
+cp .env.example .env
+
+# 2. Build the image (first build compiles mysql_fdw — grab a coffee ☕)
+make build
+
+# 3. Start
+make up
+
+# 4. Verify extensions are live
+make extensions
+```
+
+Then connect:
+
+```
+postgresql://ahi_dev:<your-password>@127.0.0.1:15409/ahi_db
+```
+
+> The host port **15409** and the `ahi_dev` / `ahi_db` names mirror the reference
+> connection string on purpose — change them freely in `.env`.
+
+---
+
+## 📚 Documentation — read in order
+
+Each document is a self-contained checklist. Tick the boxes as you go.
+
+| # | Document | What it covers |
+|---|----------|----------------|
+| 1 | [Requirements](docs/01-REQUIREMENTS.md) | Hardware/software prerequisites, your laptop's budget |
+| 2 | [Installation](docs/02-INSTALLATION.md) | Step-by-step from clone to running container |
+| 3 | [Configuration](docs/03-CONFIGURATION.md) | Every `.env` & `postgresql.conf` knob explained |
+| 4 | [Extensions](docs/04-EXTENSIONS.md) | What each extension does + usage snippets |
+| 5 | [Resource Tuning](docs/05-RESOURCE-TUNING.md) | Why the limits are what they are; how to rebalance |
+| 6 | [NestJS Integration](docs/06-NESTJS-INTEGRATION.md) | Wiring this DB into a NestJS/TypeORM/Prisma app |
+| 7 | [Backup & Restore](docs/07-BACKUP-RESTORE.md) | Dump, restore, and scheduled backups |
+| 8 | [Deployment](docs/08-DEPLOYMENT.md) | Promoting the same setup toward staging/prod |
+| 9 | [Troubleshooting](docs/09-TROUBLESHOOTING.md) | Common errors and fixes |
+| 10 | [Security](docs/10-SECURITY.md) | Hardening checklist for dev and beyond |
+
+---
+
+## 🗂️ Repository layout
+
+```
+postgresql-fdw/
+├── docker-compose.yml          # the stack + hard resource caps
+├── Dockerfile                  # PG17 + extensions (compiles mysql_fdw)
+├── .env.example                # copy to .env and edit
+├── Makefile                    # make up / down / psql / backup ...
+├── config/
+│   └── postgresql.conf         # laptop-tuned server config
+├── scripts/
+│   ├── init/                   # auto-run on first boot
+│   │   ├── 00-extensions.sql   #   CREATE EXTENSION for everything
+│   │   └── 01-roles-and-grants.sql
+│   └── fdw-examples/           # copy-paste FDW recipes (not auto-run)
+├── backups/                    # pg_dump output lands here
+└── docs/                       # the numbered guides above
+```
+
+---
+
+## ✅ Master checklist
+
+A bird's-eye view. Detailed steps live in the linked docs.
+
+- [ ] **Requirements** met — Docker Engine + Compose v2, ≥2 GB free RAM budget → [doc 1](docs/01-REQUIREMENTS.md)
+- [ ] `.env` created and **password changed** → [doc 2](docs/02-INSTALLATION.md)
+- [ ] Image built (`make build`) → [doc 2](docs/02-INSTALLATION.md)
+- [ ] Container healthy (`make health`) → [doc 2](docs/02-INSTALLATION.md)
+- [ ] Extensions verified (`make extensions`) → [doc 4](docs/04-EXTENSIONS.md)
+- [ ] Resource caps reviewed for your machine → [doc 5](docs/05-RESOURCE-TUNING.md)
+- [ ] App connected (NestJS) → [doc 6](docs/06-NESTJS-INTEGRATION.md)
+- [ ] Backup tested at least once → [doc 7](docs/07-BACKUP-RESTORE.md)
+- [ ] Security checklist reviewed → [doc 10](docs/10-SECURITY.md)
+
+---
+
+## 🧰 Everyday commands
+
+```bash
+make up           # start
+make down         # stop (data kept)
+make psql         # open a psql shell
+make extensions   # list installed extensions
+make stats        # live CPU/RAM of the container
+make backup       # dump to ./backups
+make logs         # follow logs
+make destroy      # stop AND delete data (careful!)
+make help         # everything
+```
+
+---
+
+## 📄 License
+
+[MIT](LICENSE) — use it freely.

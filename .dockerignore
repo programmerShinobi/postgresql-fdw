@@ -1,0 +1,9 @@
+# Keep the build context tiny — only what the Dockerfile needs.
+.git
+.github
+docs
+backups
+*.md
+.env
+*.env
+!.env.example

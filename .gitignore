@@ -1,0 +1,22 @@
+# Secrets — never commit real credentials
+.env
+*.env
+!.env.example
+
+# Database backups / dumps
+backups/*
+!backups/.gitkeep
+*.sql.gz
+*.dump
+*.tar
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
+
+# Logs
+*.log
