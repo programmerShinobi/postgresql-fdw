@@ -56,14 +56,15 @@ RUN set -eux; \
     make USE_PGXS=1 install; \
     cd /; \
     rm -rf /tmp/mysql_fdw; \
-    # keep the runtime MariaDB client lib that mysql_fdw.so links against
-    apt-mark manual libmariadb3; \
+    # mysql_fdw dlopen()s "libmysqlclient.so" at RUNTIME. With the MariaDB
+    # connector that unversioned .so is provided by libmariadb-dev-compat, so we
+    # KEEP it (and the runtime lib libmariadb3). We only drop the heavy build
+    # toolchain. Removing the compat package breaks `CREATE EXTENSION mysql_fdw`.
+    apt-mark manual libmariadb3 libmariadb-dev-compat; \
     apt-get purge -y --auto-remove \
         build-essential \
         git \
         postgresql-server-dev-${PG_MAJOR} \
-        libmariadb-dev \
-        libmariadb-dev-compat \
     ; \
     rm -rf /var/lib/apt/lists/*
 
