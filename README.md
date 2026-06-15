@@ -157,4 +157,4 @@ If this project helps you, a ⭐ on the repo is appreciated!
 ## 📄 License
 
 Copyright © 2026 [programmerShinobi](https://github.com/programmerShinobi).
-Released under the [MIT License](LICENSE) — use it freely.
+Released under the [MIT License](LICENSE).
