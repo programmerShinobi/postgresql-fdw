@@ -36,30 +36,31 @@ cp .env.source.example .env.source   # fill in host/port/user/db/password (gitig
 
 ## 11.3 Three things that need attention
 
-### (a) Ownership / roles — objects are owned by `ahi_dev`
-This repo renamed its superuser to **`local_dev`**. Pick one:
+### (a) Ownership / roles
+Objects in the dump are owned by whatever role owned them on the **source**
+(call it `<source_role>`). If that role doesn't exist in this target — whose
+superuser is **`local_dev`** — pick one:
 
-- **Recommended (frictionless FDW):** also create a role named `ahi_dev` in the
-  target before importing, so owners *and* FDW user mappings restore verbatim:
+- **Recommended (frictionless FDW):** create a matching role in the target
+  before importing, so owners *and* FDW user mappings restore verbatim:
   ```bash
   docker compose exec -T postgres psql -U local_dev -d local_db \
-    -c "CREATE ROLE ahi_dev LOGIN SUPERUSER PASSWORD 'pick-a-password';"
+    -c "CREATE ROLE <source_role> LOGIN SUPERUSER PASSWORD 'pick-a-password';"
   ```
   Then import **without** `--no-owner` (edit the script) to keep ownership.
 - **Pure `local_*` (default in our script):** import with
   `--no-owner --no-privileges` → everything ends up owned by `local_dev`. The
-  catch: the 5 **FDW user mappings are tied to `ahi_dev`**, so a `local_dev`
-  session won't use them. Recreate them for `local_dev` (the import carries the
+  catch: any **FDW user mappings tied to `<source_role>`** won't be used by a
+  `local_dev` session. Recreate them for `local_dev` (the import carries the
   remote credentials into the catalog; copy them with):
   ```sql
   -- as the importing user, inspect then recreate per server:
   SELECT srvname FROM pg_foreign_server;
-  -- CREATE USER MAPPING FOR local_dev SERVER gmf_imesys OPTIONS (username '...', password '...');
+  -- CREATE USER MAPPING FOR local_dev SERVER <server> OPTIONS (username '...', password '...');
   ```
 
-> TL;DR: if you just want it to **work immediately**, create the `ahi_dev` role
-> in the target. If you want a clean `local_*` world, expect to redo 5 user
-> mappings.
+> TL;DR: to **work immediately**, recreate the source owner role in the target.
+> For a clean `local_*` world, expect to redo the user mappings.
 
 ### (b) `pg_cron` jobs are NOT dumped
 `pg_dump` never carries `cron.job` rows. Recreate them after import:
@@ -71,7 +72,7 @@ docker compose exec -T postgres psql -U local_dev -d local_db \
 
 ### (c) `timescaledb` is preloaded on the source — but unused
 The source's `shared_preload_libraries = 'timescaledb, pg_cron'`, yet
-`timescaledb` is **not** created as an extension in `ahi_db` (no hypertables).
+`timescaledb` is **not** created as an extension in the source database (no hypertables).
 So the import does **not** need it and will not fail. Only if you later intend to
 use TimescaleDB features would you add `postgresql-17-timescaledb` to the
 `Dockerfile` and preload it.

@@ -38,7 +38,7 @@ superuser can cascade. Rotate promptly:
 ALTER USER local_dev WITH PASSWORD 'new-strong-password';
 ```
 Also rotate, at the source/remote side, **any credential that was visible**:
-the source `ahi_dev` password, and the remote MySQL/SQL Server logins stored in
+the source database's superuser password, and the remote MySQL/SQL Server logins stored in
 the FDW user mappings. Update the mappings afterwards:
 ```sql
 ALTER USER MAPPING FOR <role> SERVER <srv> OPTIONS (SET password 'new-remote-pw');
