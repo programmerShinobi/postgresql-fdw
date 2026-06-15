@@ -64,6 +64,7 @@ Each document is a self-contained checklist. Tick the boxes as you go.
 
 | # | Document | What it covers |
 |---|----------|----------------|
+| 0 | [**Getting Started**](docs/00-GETTING-STARTED.md) | 👈 **New here? Start with this** — friendly step-by-step walkthrough |
 | 1 | [Requirements](docs/01-REQUIREMENTS.md) | Hardware/software prerequisites, your laptop's budget |
 | 2 | [Installation](docs/02-INSTALLATION.md) | Step-by-step from clone to running container |
 | 3 | [Configuration](docs/03-CONFIGURATION.md) | Every `.env` & `postgresql.conf` knob explained |

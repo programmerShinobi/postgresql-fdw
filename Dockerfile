@@ -40,7 +40,6 @@ RUN set -eux; \
 #    build-only tooling afterwards to keep the image lean.
 # ---------------------------------------------------------------------------
 RUN set -eux; \
-    savedAptMark="$(apt-mark showmanual)"; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         build-essential \
