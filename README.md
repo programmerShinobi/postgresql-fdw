@@ -148,6 +148,13 @@ make help         # everything
 
 ---
 
+## 👤 Author
+
+**programmerShinobi** · [GitHub](https://github.com/programmerShinobi)
+
+If this project helps you, a ⭐ on the repo is appreciated!
+
 ## 📄 License
 
-[MIT](LICENSE) — use it freely.
+Copyright © 2026 [programmerShinobi](https://github.com/programmerShinobi).
+Released under the [MIT License](LICENSE) — use it freely.

@@ -24,9 +24,9 @@ of commands, and you get a ready-to-use database — no manual installs.
    ───────────────────────                    ───────────
             │  connects to port 15409
             ▼
-   ┌───────────────────────────┐   Docker container (capped: 1.5 GB / 2 CPU)
-   │  PostgreSQL 17 + extensions│   ── data saved in a Docker "volume"
-   └───────────────────────────┘
+   ┌────────────────────────────┐   Docker container (capped: 1.5 GB / 2 CPU)
+   │  PostgreSQL 17 + extensions│── data saved in a Docker "volume"
+   └────────────────────────────┘
             │  (optional) Foreign Data Wrappers
             ▼
    other databases (MySQL / SQL Server / Postgres)
