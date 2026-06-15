@@ -25,7 +25,7 @@ Quick taste:
 
 ```sql
 CREATE SERVER remote_pg FOREIGN DATA WRAPPER postgres_fdw
-    OPTIONS (host '10.0.0.10', port '5432', dbname 'remote_db');
+    OPTIONS (host 'remote-postgres.example.com', port '5432', dbname 'remote_db');
 CREATE USER MAPPING FOR CURRENT_USER SERVER remote_pg
     OPTIONS (user 'remote_user', password 'secret');
 IMPORT FOREIGN SCHEMA public FROM SERVER remote_pg INTO public;

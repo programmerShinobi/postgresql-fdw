@@ -4,7 +4,7 @@
 
 CREATE SERVER IF NOT EXISTS remote_mysql
     FOREIGN DATA WRAPPER mysql_fdw
-    OPTIONS (host '10.0.0.20', port '3306');
+    OPTIONS (host 'remote-mysql.example.com', port '3306');
 
 CREATE USER MAPPING IF NOT EXISTS FOR CURRENT_USER
     SERVER remote_mysql

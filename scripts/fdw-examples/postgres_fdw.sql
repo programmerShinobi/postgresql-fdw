@@ -6,7 +6,7 @@
 -- 1) Define the remote server.
 CREATE SERVER IF NOT EXISTS remote_pg
     FOREIGN DATA WRAPPER postgres_fdw
-    OPTIONS (host '10.0.0.10', port '5432', dbname 'remote_db');
+    OPTIONS (host 'remote-postgres.example.com', port '5432', dbname 'remote_db');
 
 -- 2) Map your local user to a remote login.
 CREATE USER MAPPING IF NOT EXISTS FOR CURRENT_USER
