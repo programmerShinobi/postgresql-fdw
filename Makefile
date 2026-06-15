@@ -11,8 +11,10 @@ endif
 
 DC          := docker compose
 SERVICE     := postgres
-DB_USER     ?= local_dev
-DB_NAME     ?= local_db
+# Derive from .env (POSTGRES_USER/POSTGRES_DB) so renaming them never breaks
+# `make psql` / `backup` / `extensions`. Falls back to the defaults if unset.
+DB_USER     ?= $(or $(POSTGRES_USER),local_dev)
+DB_NAME     ?= $(or $(POSTGRES_DB),local_db)
 TS          := $(shell date +%Y%m%d_%H%M%S)
 
 .DEFAULT_GOAL := help
