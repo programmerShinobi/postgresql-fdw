@@ -11,8 +11,8 @@ endif
 
 DC          := docker compose
 SERVICE     := postgres
-DB_USER     ?= ahi_dev
-DB_NAME     ?= ahi_db
+DB_USER     ?= local_dev
+DB_NAME     ?= local_db
 TS          := $(shell date +%Y%m%d_%H%M%S)
 
 .DEFAULT_GOAL := help

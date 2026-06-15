@@ -1,7 +1,7 @@
 -- =============================================================================
 -- 00-extensions.sql
 -- Runs automatically ONLY on first cluster init (empty data directory),
--- against the database named by POSTGRES_DB (ahi_db).
+-- against the database named by POSTGRES_DB (local_db).
 --
 -- Every extension below ships inside the image, so it is "ready to use".
 -- =============================================================================
@@ -40,7 +40,7 @@ CREATE EXTENSION IF NOT EXISTS vector;             -- pgvector: embeddings/ANN
 CREATE EXTENSION IF NOT EXISTS orafce;             -- Oracle-compatible functions
 
 -- ----- Scheduling -----------------------------------------------------------
--- pg_cron lives in the database set by cron.database_name (= ahi_db).
+-- pg_cron lives in the database set by cron.database_name (= local_db).
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 -- ----- Partitioning ---------------------------------------------------------

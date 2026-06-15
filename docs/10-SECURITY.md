@@ -11,7 +11,7 @@
 - [ ] Don't paste real passwords into issues, screenshots, or commit messages.
 - [ ] If a password leaks, rotate it:
       ```sql
-      ALTER USER ahi_dev WITH PASSWORD 'new-strong-password';
+      ALTER USER local_dev WITH PASSWORD 'new-strong-password';
       ```
 
 ## 10.2 Authentication
@@ -34,12 +34,12 @@
 ## 10.4 Least privilege
 
 - [ ] Your app ideally connects as a **non-superuser** role with only the grants
-      it needs, not as `ahi_dev` (the superuser). A read-only role
-      (`ahi_readonly`) is created for you as a starting point.
+      it needs, not as `local_dev` (the superuser). A read-only role
+      (`local_readonly`) is created for you as a starting point.
 - [ ] Create a dedicated app role:
       ```sql
       CREATE ROLE app_user LOGIN PASSWORD 'strong';
-      GRANT CONNECT ON DATABASE ahi_db TO app_user;
+      GRANT CONNECT ON DATABASE local_db TO app_user;
       GRANT USAGE ON SCHEMA app TO app_user;
       GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA app TO app_user;
       ```

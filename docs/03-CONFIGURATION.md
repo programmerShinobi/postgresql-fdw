@@ -14,10 +14,10 @@ Nothing here requires an image rebuild **except** changing extensions in the
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `COMPOSE_PROJECT_NAME` | `ahi` | Prefix for container/volume/network names |
-| `POSTGRES_USER` | `ahi_dev` | Superuser created on first init |
+| `COMPOSE_PROJECT_NAME` | `local` | Prefix for container/volume/network names |
+| `POSTGRES_USER` | `local_dev` | Superuser created on first init |
 | `POSTGRES_PASSWORD` | — | **Required.** Set a strong value |
-| `POSTGRES_DB` | `ahi_db` | Default database created on first init |
+| `POSTGRES_DB` | `local_db` | Default database created on first init |
 | `POSTGRES_HOST_PORT` | `15409` | Host port → container `5432` |
 | `TZ` | `Asia/Jakarta` | Container & log timezone |
 | `PG_MEM_LIMIT` | `1536M` | **Hard** RAM ceiling for the container |
@@ -69,7 +69,7 @@ preload-requiring extension, edit this line and `make restart`.
 make restart
 # 3. Confirm a value:
 make psql
-ahi_db=# SHOW shared_buffers;
+local_db=# SHOW shared_buffers;
 ```
 
 Some settings (e.g. `shared_buffers`, `shared_preload_libraries`) require a full

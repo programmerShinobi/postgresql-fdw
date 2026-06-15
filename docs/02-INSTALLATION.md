@@ -91,7 +91,7 @@ make psql
 From your host (needs a local `psql`/DBeaver/etc.):
 
 ```bash
-psql "postgresql://ahi_dev:<password>@127.0.0.1:15409/ahi_db"
+psql "postgresql://local_dev:<password>@127.0.0.1:15409/local_db"
 ```
 
 ---

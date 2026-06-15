@@ -60,7 +60,7 @@ your other apps. See [doc 5 — Resource Tuning](05-RESOURCE-TUNING.md) for the 
 ## 1.3 Disk requirements
 
 - [ ] **~2 GB** free for the built image (PG17 + compiled extensions).
-- [ ] Additional space for your data volume (`ahi_pgdata`) and `./backups`.
+- [ ] Additional space for your data volume (`local_pgdata`) and `./backups`.
 
 ## 1.4 Network / ports
 

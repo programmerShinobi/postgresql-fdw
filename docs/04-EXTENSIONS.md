@@ -1,6 +1,6 @@
 # 4. Extensions
 
-Everything below is **already installed and created** in `ahi_db` on first boot
+Everything below is **already installed and created** in `local_db` on first boot
 (see `scripts/init/00-extensions.sql`). List them anytime with:
 
 ```bash
@@ -48,7 +48,7 @@ SELECT * FROM some_remote_table LIMIT 5;
 | `pg_cron` | run SQL on a cron schedule, inside the DB | `SELECT cron.schedule('nightly', '0 2 * * *', 'VACUUM ANALYZE');` |
 | `pg_partman` | automated time/serial partitioning | manage big tables without manual partition DDL |
 
-> `pg_cron` is bound to `ahi_db` via `cron.database_name`. Jobs run as the
+> `pg_cron` is bound to `local_db` via `cron.database_name`. Jobs run as the
 > database owner. List jobs: `SELECT * FROM cron.job;`
 
 ## 4.4 Performance & operations

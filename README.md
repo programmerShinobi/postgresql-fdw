@@ -48,11 +48,11 @@ make extensions
 Then connect:
 
 ```
-postgresql://ahi_dev:<your-password>@127.0.0.1:15409/ahi_db
+postgresql://local_dev:<your-password>@127.0.0.1:15409/local_db
 ```
 
-> The host port **15409** and the `ahi_dev` / `ahi_db` names mirror the reference
-> connection string on purpose — change them freely in `.env`.
+> Host port **15409** mirrors the original reference connection string; the
+> generic `local_dev` / `local_db` names keep this reusable. Change anything in `.env`.
 
 ---
 

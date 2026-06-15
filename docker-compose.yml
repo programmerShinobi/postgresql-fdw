@@ -14,13 +14,13 @@ services:
       args:
         PG_MAJOR: "17"
     image: postgresql-fdw-dev:17
-    container_name: ${COMPOSE_PROJECT_NAME:-ahi}-postgres
+    container_name: ${COMPOSE_PROJECT_NAME:-local}-postgres
     restart: unless-stopped
 
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-ahi_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-local_dev}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: ${POSTGRES_DB:-ahi_db}
+      POSTGRES_DB: ${POSTGRES_DB:-local_db}
       # Use scram-sha-256 (stronger than md5) for host connections.
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
       POSTGRES_INITDB_ARGS: "--data-checksums --auth-host=scram-sha-256"
@@ -48,7 +48,7 @@ services:
       - ./backups:/backups
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ahi_dev} -d ${POSTGRES_DB:-ahi_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-local_dev} -d ${POSTGRES_DB:-local_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -78,13 +78,13 @@ services:
         max-file: "3"
 
     networks:
-      - ahi_net
+      - local_net
 
 volumes:
   pgdata:
-    name: ${COMPOSE_PROJECT_NAME:-ahi}_pgdata
+    name: ${COMPOSE_PROJECT_NAME:-local}_pgdata
 
 networks:
-  ahi_net:
-    name: ${COMPOSE_PROJECT_NAME:-ahi}_net
+  local_net:
+    name: ${COMPOSE_PROJECT_NAME:-local}_net
     driver: bridge

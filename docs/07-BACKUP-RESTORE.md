@@ -1,20 +1,20 @@
 # 7. Backup & Restore
 
-> Data in the `ahi_pgdata` volume survives `make down`, but **not** `make
+> Data in the `local_pgdata` volume survives `make down`, but **not** `make
 > destroy`. Take real backups.
 
 ## 7.1 One-off backup
 
 ```bash
 make backup
-# -> backups/ahi_db_YYYYMMDD_HHMMSS.dump.gz   (custom-format, gzipped)
+# -> backups/local_db_YYYYMMDD_HHMMSS.dump.gz   (custom-format, gzipped)
 ```
 
 Under the hood:
 
 ```bash
 docker compose exec -T postgres \
-  pg_dump -U ahi_dev -d ahi_db -Fc | gzip > backups/ahi_db_<ts>.dump.gz
+  pg_dump -U local_dev -d local_db -Fc | gzip > backups/local_db_<ts>.dump.gz
 ```
 
 Custom format (`-Fc`) is recommended: compressed, and `pg_restore` can do
@@ -23,14 +23,14 @@ selective/partial restores from it.
 ## 7.2 Restore
 
 ```bash
-make restore FILE=backups/ahi_db_20260615_140000.dump.gz
+make restore FILE=backups/local_db_20260615_140000.dump.gz
 ```
 
 Under the hood:
 
 ```bash
 gunzip -c <file> | docker compose exec -T postgres \
-  pg_restore -U ahi_dev -d ahi_db --clean --if-exists
+  pg_restore -U local_dev -d local_db --clean --if-exists
 ```
 
 > `--clean --if-exists` drops existing objects first, so you restore onto a
@@ -40,10 +40,10 @@ gunzip -c <file> | docker compose exec -T postgres \
 ## 7.3 Plain SQL dump (portable, human-readable)
 
 ```bash
-docker compose exec -T postgres pg_dumpall -U ahi_dev --globals-only \
+docker compose exec -T postgres pg_dumpall -U local_dev --globals-only \
   > backups/globals.sql            # roles/tablespaces
-docker compose exec -T postgres pg_dump -U ahi_dev -d ahi_db \
-  > backups/ahi_db.sql             # schema + data as SQL
+docker compose exec -T postgres pg_dump -U local_dev -d local_db \
+  > backups/local_db.sql             # schema + data as SQL
 ```
 
 ## 7.4 Scheduled backups

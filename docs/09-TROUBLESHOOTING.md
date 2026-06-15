@@ -24,7 +24,7 @@ volume already existed, they were skipped.
 ```bash
 # Option A — create them manually on the running DB:
 make psql
-ahi_db=# \i /docker-entrypoint-initdb.d/00-extensions.sql
+local_db=# \i /docker-entrypoint-initdb.d/00-extensions.sql
 
 # Option B — start clean (⚠️ deletes all data):
 make destroy && make up
@@ -90,7 +90,7 @@ SELECT * FROM cron.job_run_details      -- did they run / fail?
   ORDER BY start_time DESC LIMIT 20;
 ```
 
-Check `cron.database_name = 'ahi_db'` in `postgresql.conf` matches your DB, and
+Check `cron.database_name = 'local_db'` in `postgresql.conf` matches your DB, and
 that `pg_cron` is in `shared_preload_libraries`.
 
 ## 9.8 Can't connect from the host
@@ -100,7 +100,7 @@ that `pg_cron` is in `shared_preload_libraries`.
 - Right password? It's whatever was in `.env` **at first init** — changing
   `.env` later does not change an existing user's password. Reset it:
   ```sql
-  ALTER USER ahi_dev WITH PASSWORD 'new-password';
+  ALTER USER local_dev WITH PASSWORD 'new-password';
   ```
 
 ## 9.9 Reset everything (nuclear)

@@ -8,16 +8,16 @@
 ```
 Host:     127.0.0.1
 Port:     15409
-User:     ahi_dev
+User:     local_dev
 Password: <your .env value>
-Database: ahi_db
-URL:      postgresql://ahi_dev:<password>@127.0.0.1:15409/ahi_db
+Database: local_db
+URL:      postgresql://local_dev:<password>@127.0.0.1:15409/local_db
 ```
 
 Put it in your NestJS app's `.env` (separate from this repo's `.env`):
 
 ```env
-DATABASE_URL=postgresql://ahi_dev:<password>@127.0.0.1:15409/ahi_db
+DATABASE_URL=postgresql://local_dev:<password>@127.0.0.1:15409/local_db
 ```
 
 ## 6.2 With TypeORM
@@ -46,7 +46,7 @@ datasource db {
 
 ```env
 # Cap the pool so NestJS doesn't exhaust connections.
-DATABASE_URL="postgresql://ahi_dev:<password>@127.0.0.1:15409/ahi_db?connection_limit=10&pool_timeout=20"
+DATABASE_URL="postgresql://local_dev:<password>@127.0.0.1:15409/local_db?connection_limit=10&pool_timeout=20"
 ```
 
 Enable extensions you use (e.g. pgvector) in a migration:
@@ -86,13 +86,13 @@ instead of `127.0.0.1`:
 # in your app's compose file
 services:
   api:
-    networks: [ahi_net]
+    networks: [local_net]
     environment:
-      DATABASE_URL: postgresql://ahi_dev:<password>@ahi-postgres:5432/ahi_db
+      DATABASE_URL: postgresql://local_dev:<password>@local-postgres:5432/local_db
 networks:
-  ahi_net:
+  local_net:
     external: true
-    name: ahi_net
+    name: local_net
 ```
 
 > Inside the Docker network the port is **5432** (container port), not 15409.

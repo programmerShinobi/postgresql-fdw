@@ -35,7 +35,7 @@ jobs:
       - name: Wait for healthy
         run: |
           for i in $(seq 1 30); do
-            if docker compose exec -T postgres pg_isready -U ahi_dev -d ahi_db; then
+            if docker compose exec -T postgres pg_isready -U local_dev -d local_db; then
               echo "ready"; exit 0
             fi
             echo "waiting... ($i)"; sleep 5
@@ -44,7 +44,7 @@ jobs:
 
       - name: Assert extensions are installed
         run: |
-          docker compose exec -T postgres psql -U ahi_dev -d ahi_db -tAc \
+          docker compose exec -T postgres psql -U local_dev -d local_db -tAc \
             "SELECT extname FROM pg_extension ORDER BY extname;" | tee /tmp/ext.txt
           for ext in postgres_fdw mysql_fdw tds_fdw file_fdw vector pg_cron \
                      pg_partman pgaudit pg_repack hypopg pg_hint_plan orafce \
