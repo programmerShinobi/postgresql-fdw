@@ -18,7 +18,7 @@ Skip only if you intend to prefix every command with `sudo`.
 ## 2.1 Get the code
 
 ```bash
-git clone https://github.com/<you>/postgresql-fdw.git
+git clone https://github.com/programmerShinobi/postgresql-fdw.git
 cd postgresql-fdw
 ```
 
