@@ -1,0 +1,56 @@
+name: 🐛 Bug report
+description: Report a problem with the setup, image, or docs
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug! Please **do not include any
+        real passwords, connection strings, or internal IPs** in this report.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug and what you expected instead.
+      placeholder: "After `make up`, the container restarts in a loop because..."
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. `make build`
+        2. `make up`
+        3. See error in `make logs`
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Output of `make logs` / `make ps` (redact anything sensitive).
+      render: shell
+  - type: input
+    id: pg-version
+    attributes:
+      label: PostgreSQL / image version
+      placeholder: "PG17, postgresql-fdw-dev:17 at commit abc1234"
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      placeholder: |
+        - OS: elementary OS 8
+        - Docker: 29.x / Compose v2.x
+        - RAM/CPU: 16 GB / 8 threads
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I confirmed Docker runs without `sudo` (or prefixed accordingly)
+        - label: I redacted all secrets and internal IPs from this report
+          required: true

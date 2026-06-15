@@ -1,0 +1,38 @@
+name: 💡 Feature request
+description: Suggest an extension, optional service, or improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      placeholder: "I need TimescaleDB hypertables for time-series data..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should be added/changed?
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type
+      options:
+        - New extension
+        - New optional service (compose profile)
+        - Configuration / tuning
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Keeps the project lightweight?
+      description: The default `make up` must stay minimal.
+      options:
+        - label: This can be opt-in (compose profile / build arg) and won't slow a plain `make up`
+          required: true

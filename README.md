@@ -6,9 +6,11 @@
 Foreign Data Wrappers + vector search + scheduling + partitioning + auditing —
 all pre-installed, tuned to coexist peacefully with Elasticsearch, Redis and NestJS.
 
+[![CI](https://github.com/programmerShinobi/postgresql-fdw/actions/workflows/ci.yml/badge.svg)](https://github.com/programmerShinobi/postgresql-fdw/actions/workflows/ci.yml)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 </div>
 
